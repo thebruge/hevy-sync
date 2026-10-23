@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- A network error gets one retry after 30 seconds before it counts as a failed
+  sync, and the error names the cause and host instead of just "fetch failed".
+
 ### Removed
 - The local Raycast command (`raycast/`). garmin-dashboard's "Sync Hevy to Garmin"
   triggers the server instead.

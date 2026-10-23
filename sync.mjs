@@ -307,6 +307,8 @@ if (!commands[cmd]) fail(`Unknown command "${cmd}". Use: login, check, preview, 
 try {
   await commands[cmd]();
 } catch (e) {
+  const c = e.cause;
+  if (c) e.message += ` (${c.code || c.message || c}${c.hostname ? ` ${c.hostname}` : ""})`;
   // Hevy or Garmin unreachable, or an unexpected error: record it, then fail loudly.
   fail(`Sync failed: ${e.message}`, /auth|401|sign.?in/i.test(e.message) ? 2 : 1);
 }
