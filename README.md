@@ -19,46 +19,52 @@ it runs, syncs whatever is new, and exits. The sync record is a JSON file.
 
 Needs Hevy Pro (for the API key) and Node.js.
 
-## Setup
+## Where it runs
+
+It runs on the
+[garmin-dashboard](https://github.com/thebruge/garmin-dashboard) server
+(CT 208), deployed alongside it at `/opt/hevy-sync` by garmin-dashboard's
+`server/deploy.sh` (which also runs `npm ci`). Every refresh there runs the Hevy
+sync before the Garmin pull: at 6 am, and when you press Refresh on the
+dashboard or use the Raycast commands, which trigger the server.
+
+**Run it in one place only.** Garmin replaces the saved sign-in token each time
+it's renewed, so two copies would knock each other out, and each copy would
+keep its own sync record. Its `.env.local` and `data/` live on the server only.
+
+## Commands (on the server)
+
+Run them inside the worker container, from the Mac. Keep the single quotes:
+they stop your Mac's shell from eating the inner ones.
+
+```sh
+ssh -t pve 'pct exec 208 -- docker exec -it garmin-worker sh -c "cd /app/hevy-sync && node sync.mjs status"'   # what's been synced
+ssh -t pve 'pct exec 208 -- docker exec -it garmin-worker sh -c "cd /app/hevy-sync && node sync.mjs check"'    # test the Hevy key and Garmin sign-in
+ssh -t pve 'pct exec 208 -- docker exec -it garmin-worker sh -c "cd /app/hevy-sync && node sync.mjs preview"'  # what a sync would do, changes nothing
+ssh -t pve 'pct exec 208 -- docker exec -it garmin-worker sh -c "cd /app/hevy-sync && node sync.mjs login"'    # sign in to Garmin again
+```
+
+`node sync.mjs sync` syncs and respects the 2-hour wait; with `--now` it skips
+the wait, but a workout that ended less than 2 hours ago is only merged into a
+watch recording, never uploaded, and otherwise waits for a later run. The
+dashboard's Refresh does `--now`; the 6 am run doesn't.
+
+## Setup from scratch
+
+On the Mac, then moved to the server with garmin-dashboard's
+`server/deploy.sh --data`:
 
 1. `npm install`
 2. Put your Hevy API key (hevy.com → Settings → Developer) in `.env.local`:
    ```
    HEVY_API_KEY=your-key
    ```
-3. Sign in to Garmin once, in a terminal:
-   ```sh
-   node sync.mjs login
-   ```
-   Your password goes straight to Garmin (no cloud relay) and isn't saved. The
-   renewable sign-in token is saved in `data/garmin/` and lasts about a year.
-4. Check: `node sync.mjs check`
-
-## Use
-
-```sh
-node sync.mjs preview      # show what would happen, change nothing
-./sync.sh                  # sync (respects the 2-hour wait)
-./sync.sh --now            # sync now; a just-finished workout is only merged, never uploaded
-node sync.mjs status       # what's been synced
-```
-
-It runs on the
-[garmin-dashboard](https://github.com/thebruge/garmin-dashboard) server
-(CT 208), deployed alongside it at `/opt/hevy-sync`. Every refresh there runs
-the Hevy sync before the Garmin pull: at 6 am, and when you press Refresh or
-use the Mac app or Raycast commands, which trigger the server.
-
-**Run it in one place only.** Garmin replaces the saved sign-in token each time
-it's renewed, so two copies would knock each other out, and each copy would
-keep its own sync record. To sign in again on the server:
-
-```sh
-ssh -t pve pct exec 208 -- docker exec -it garmin-worker sh -c "cd /app/hevy-sync && node sync.mjs login"
-```
-
-The Raycast command in `raycast/` here runs the sync locally. Use the one in
-garmin-dashboard's `raycast/` folder instead, which triggers the server.
+3. Sign in to Garmin once: `node sync.mjs login`. Your password goes straight
+   to Garmin (no cloud relay) and isn't saved. The renewable sign-in token is
+   saved in `data/garmin/` and lasts about a year.
+4. Check: `node sync.mjs check`, then preview: `node sync.mjs preview`.
+5. Deploy with garmin-dashboard's `server/deploy.sh --data`, then delete
+   `.env.local` and `data/` here.
 
 ## Files
 
@@ -66,8 +72,8 @@ garmin-dashboard's `raycast/` folder instead, which triggers the server.
 |---|---|
 | `sync.mjs` | The commands: login, check, preview, sync, status |
 | `lib/file-store.mjs` | The engine's ledger, kept in `data/ledger.json` |
-| `sync.sh` | Runs a sync with the right PATH and logs to `data/sync.log` |
-| `raycast/sync-hevy-to-garmin.sh` | Raycast script command |
+| `sync.sh` | Runs a sync with the right PATH and logs to `data/sync.log` (what the server runs) |
+| `raycast/sync-hevy-to-garmin.sh` | Raycast command that syncs **locally**; superseded by garmin-dashboard's, which triggers the server |
 | `data/status.json` | Outcome of the last sync, read by garmin-dashboard to show a warning (git-ignored) |
 
 ## Privacy

@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- README: setup and commands are for the server (inside the worker container),
+  with working quoting for the ssh commands.
+
 ### Changed
 - Runs on the garmin-dashboard server (CT 208), deployed by garmin-dashboard's
   `server/deploy.sh`. The Garmin sign-in and sync record live there only.
