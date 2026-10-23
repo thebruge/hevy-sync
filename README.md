@@ -43,11 +43,22 @@ node sync.mjs preview      # show what would happen, change nothing
 node sync.mjs status       # what's been synced
 ```
 
-It's usually run by
-[garmin-dashboard](https://github.com/thebruge/garmin-dashboard)'s refresh:
-at 6 am, and whenever you open the Garmin Dashboard app. The Hevy sync runs
-before the Garmin pull. There's also a Raycast script command in `raycast/`
-("Sync Hevy to Garmin").
+It runs on the
+[garmin-dashboard](https://github.com/thebruge/garmin-dashboard) server
+(CT 208), deployed alongside it at `/opt/hevy-sync`. Every refresh there runs
+the Hevy sync before the Garmin pull: at 6 am, and when you press Refresh or
+use the Mac app or Raycast commands, which trigger the server.
+
+**Run it in one place only.** Garmin replaces the saved sign-in token each time
+it's renewed, so two copies would knock each other out, and each copy would
+keep its own sync record. To sign in again on the server:
+
+```sh
+ssh -t pve pct exec 208 -- docker exec -it garmin-worker sh -c "cd /app/hevy-sync && node sync.mjs login"
+```
+
+The Raycast command in `raycast/` here runs the sync locally. Use the one in
+garmin-dashboard's `raycast/` folder instead, which triggers the server.
 
 ## Files
 
@@ -62,4 +73,4 @@ before the Garmin pull. There's also a Raycast script command in `raycast/`
 ## Privacy
 
 `.env.local` (Hevy key) and `data/` (Garmin sign-in token, sync record, logs)
-are git-ignored and stay on this machine.
+are git-ignored. They live on CT 208 only.

@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- Runs on the garmin-dashboard server (CT 208), deployed by garmin-dashboard's
+  `server/deploy.sh`. The Garmin sign-in and sync record live there only.
+
 ### Added
 - `data/status.json` records each sync's outcome, including when a new
   Garmin sign-in is needed, for garmin-dashboard's warning banner.
