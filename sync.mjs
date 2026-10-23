@@ -11,12 +11,12 @@
 //
 // Exit codes: 0 ok, 1 something failed, 2 Garmin sign-in needed.
 import { createInterface } from "node:readline";
-import { existsSync, mkdirSync, readFileSync, rmdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, rmdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   HevyClient, garminGateway, listCandidates, syncOneWorkout, reconcilePending,
-  findMergeMatch, mergeSearchRange, dailyHrToPoints, DEFAULT_GRACE_MINUTES,
+  findMergeMatch, mergeSearchRange, dailyHrToPoints, DEFAULT_GRACE_MINUTES, getExerciseMuscles,
 } from "hevy2garmin";
 import { GarminAuth, FileTokenStore } from "garmin-auth";
 import { createLocalSsoClient } from "garmin-auth/sso-local";
@@ -30,6 +30,7 @@ const LEDGER = join(DATA, "ledger.json");
 const PROFILE_CACHE = join(DATA, "profile.json");
 const LOCK = join(DATA, ".sync.lock");
 const STATUS = join(DATA, "status.json");   // read by garmin-dashboard to show warnings
+const WORKOUTS = join(DATA, "workouts.json"); // read by garmin-dashboard for its Strength section
 
 // The merge choice from setup: fold Hevy's sets into the watch's own strength
 // activity, keeping its heart rate and training load.
@@ -158,6 +159,21 @@ function lock() {
   process.on("SIGINT", () => process.exit(130));
 }
 
+// Every Hevy workout, compact, for garmin-dashboard's Strength section (read-only
+// from Hevy; rewritten on each sync). Sets are [type, weight kg, reps].
+function saveWorkouts(all) {
+  const out = all.map(w => ({
+    id: w.id, title: w.title || "Workout", start: w.start_time, end: w.end_time,
+    exercises: (w.exercises || []).map(e => {
+      const m = getExerciseMuscles(e.title || "");
+      return { title: e.title, primary: m.primary, secondary: m.secondary,
+               sets: (e.sets || []).map(s => [s.type || "normal", s.weight_kg ?? null, s.reps ?? null]) };
+    }),
+  }));
+  writeFileSync(WORKOUTS + ".tmp", JSON.stringify(out));
+  renameSync(WORKOUTS + ".tmp", WORKOUTS);
+}
+
 // ---------- commands ----------
 async function login() {
   console.log("Sign in to Garmin Connect. Your password goes straight to Garmin and is not saved.\n");
@@ -247,6 +263,7 @@ async function sync() {
   }
 
   const all = await d.fetchWorkouts();
+  try { saveWorkouts(all); } catch (e) { console.log(`Couldn't save workouts for the dashboard: ${e.message}`); }
   const byId = new Map(all.map(w => [w.id, w]));
   const candidates = (await listCandidates(d)).reverse().slice(0, limit);   // oldest first
   const tally = { synced: 0, skipped: 0, failed: 0 };

@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `data/workouts.json`: every Hevy workout with its sets and each exercise's
+  muscle groups, saved on each sync for garmin-dashboard's Strength section.
+
 ### Fixed
 - Temporary errors (network trouble, HTTP 429/5xx, including Garmin uploads)
   get up to 3 retries after 5, 15 and 30 seconds before a sync counts as failed, and the error names the cause and host instead of just "fetch failed".

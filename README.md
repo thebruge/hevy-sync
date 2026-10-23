@@ -74,6 +74,7 @@ On the Mac, then moved to the server with garmin-dashboard's
 | `lib/file-store.mjs` | The engine's ledger, kept in `data/ledger.json` |
 | `sync.sh` | Runs a sync with the right PATH and logs to `data/sync.log` (what the server runs) |
 | `data/status.json` | Outcome of the last sync, read by garmin-dashboard to show a warning (git-ignored) |
+| `data/workouts.json` | Every Hevy workout with sets and muscle groups, for garmin-dashboard's Strength section (git-ignored) |
 
 ## Privacy
 
