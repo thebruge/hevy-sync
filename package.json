@@ -1,0 +1,17 @@
+{
+  "name": "hevy-sync",
+  "version": "0.1.0",
+  "description": "Background sync of Hevy workouts to Garmin Connect",
+  "scripts": {
+    "sync": "./sync.sh",
+    "preview": "node sync.mjs preview",
+    "status": "node sync.mjs status"
+  },
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "garmin-auth": "^0.8.1",
+    "hevy2garmin": "^0.15.0"
+  },
+  "private": true
+}
