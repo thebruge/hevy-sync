@@ -73,7 +73,6 @@ On the Mac, then moved to the server with garmin-dashboard's
 | `sync.mjs` | The commands: login, check, preview, sync, status |
 | `lib/file-store.mjs` | The engine's ledger, kept in `data/ledger.json` |
 | `sync.sh` | Runs a sync with the right PATH and logs to `data/sync.log` (what the server runs) |
-| `raycast/sync-hevy-to-garmin.sh` | Raycast command that syncs **locally**; superseded by garmin-dashboard's, which triggers the server |
 | `data/status.json` | Outcome of the last sync, read by garmin-dashboard to show a warning (git-ignored) |
 
 ## Privacy

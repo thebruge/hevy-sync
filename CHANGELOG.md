@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Removed
+- The local Raycast command (`raycast/`). garmin-dashboard's "Sync Hevy to Garmin"
+  triggers the server instead.
+
 ### Fixed
 - README: setup and commands are for the server (inside the worker container),
   with working quoting for the ssh commands.
