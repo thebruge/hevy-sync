@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- Workout times in the output use 24-hour time.
+
 ## [0.1.0] - 2026-10-22
 
 ### Added

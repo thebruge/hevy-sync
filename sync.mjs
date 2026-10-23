@@ -40,7 +40,7 @@ const cmd = args[0] || "sync";
 const flag = name => args.includes(name);
 const opt = (name, dflt) => { const i = args.indexOf(name); return i >= 0 && args[i + 1] ? args[i + 1] : dflt; };
 const day = s => String(s || "").slice(0, 10);
-const fmtWhen = iso => iso ? new Date(iso).toLocaleString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) : "?";
+const fmtWhen = iso => iso ? new Date(iso).toLocaleString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }) : "?";
 
 function env() {
   const out = {};
