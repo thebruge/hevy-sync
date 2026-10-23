@@ -29,6 +29,7 @@ const TOKENS_DIR = join(DATA, "garmin");
 const LEDGER = join(DATA, "ledger.json");
 const PROFILE_CACHE = join(DATA, "profile.json");
 const LOCK = join(DATA, ".sync.lock");
+const STATUS = join(DATA, "status.json");   // read by garmin-dashboard to show warnings
 
 // The merge choice from setup: fold Hevy's sets into the watch's own strength
 // activity, keeping its heart rate and training load.
@@ -59,8 +60,17 @@ function hevyClient() {
   return new HevyClient(key);
 }
 
+// The outcome of the last sync, for garmin-dashboard's warning banner.
+function writeStatus(fields) {
+  try {
+    mkdirSync(DATA, { recursive: true });
+    writeFileSync(STATUS, JSON.stringify({ at: new Date().toISOString(), ...fields }, null, 1));
+  } catch {}
+}
+
 function fail(msg, code = 1) {
   console.error(msg);
+  if (cmd === "sync" && code !== 0) writeStatus({ ok: false, needsLogin: code === 2, message: msg });
   process.exit(code);
 }
 
@@ -270,6 +280,8 @@ async function sync() {
     }
   }
   await store.recordSyncLog({ ...tally, trigger: now ? "manual" : "scheduled" });
+  writeStatus({ ok: !tally.failed, needsLogin: false, synced: tally.synced, failed: tally.failed, waiting,
+    message: tally.failed ? `${tally.failed} workout(s) failed to sync; see hevy-sync/data/sync.log` : null });
   const parts = [];
   if (tally.synced) parts.push(`${tally.synced} synced`);
   if (waiting) parts.push(`${waiting} waiting`);
@@ -292,4 +304,9 @@ function status() {
 
 const commands = { login, check, preview, sync, status };
 if (!commands[cmd]) fail(`Unknown command "${cmd}". Use: login, check, preview, sync, status`);
-await commands[cmd]();
+try {
+  await commands[cmd]();
+} catch (e) {
+  // Hevy or Garmin unreachable, or an unexpected error: record it, then fail loudly.
+  fail(`Sync failed: ${e.message}`, /auth|401|sign.?in/i.test(e.message) ? 2 : 1);
+}

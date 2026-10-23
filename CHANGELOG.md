@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `data/status.json` records each sync's outcome, including when a new
+  Garmin sign-in is needed, for garmin-dashboard's warning banner.
+
 ## [0.1.1] - 2026-10-22
 
 ### Changed

@@ -57,6 +57,7 @@ before the Garmin pull. There's also a Raycast script command in `raycast/`
 | `lib/file-store.mjs` | The engine's ledger, kept in `data/ledger.json` |
 | `sync.sh` | Runs a sync with the right PATH and logs to `data/sync.log` |
 | `raycast/sync-hevy-to-garmin.sh` | Raycast script command |
+| `data/status.json` | Outcome of the last sync, read by garmin-dashboard to show a warning (git-ignored) |
 
 ## Privacy
 
