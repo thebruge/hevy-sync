@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-02
+
 ### Fixed
 - A network blip or Garmin outage while checking the Garmin sign-in no longer
   says the sign-in needs renewing. garmin-auth reports every failed check as
@@ -62,7 +64,8 @@ All notable changes to this project are documented here. The format follows
   anything.
 - `sync.sh` for schedulers, and a Raycast script command.
 
-[Unreleased]: https://github.com/thebruge/hevy-sync/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/thebruge/hevy-sync/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/thebruge/hevy-sync/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/thebruge/hevy-sync/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/thebruge/hevy-sync/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/thebruge/hevy-sync/releases/tag/v0.1.0
