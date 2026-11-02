@@ -151,7 +151,7 @@ function deps(store, hevy, client) {
   };
 }
 
-// One run at a time (the 6 am schedule and a manual trigger could overlap).
+// One run at a time (a scheduled run and a manual trigger could overlap).
 function lock() {
   mkdirSync(DATA, { recursive: true });
   try { mkdirSync(LOCK); }

@@ -25,7 +25,7 @@ It runs on the
 [garmin-dashboard](https://github.com/thebruge/garmin-dashboard) server
 (CT 208), deployed alongside it at `/opt/hevy-sync` by garmin-dashboard's
 `server/deploy.sh` (which also runs `npm ci`). Every refresh there runs the Hevy
-sync before the Garmin pull: at 6 am, and when you press Refresh on the
+sync before the Garmin pull: at 7:00 and 19:00, and when you press Refresh on the
 dashboard or use the Raycast commands, which trigger the server.
 
 **Run it in one place only.** Garmin replaces the saved sign-in token each time
@@ -47,7 +47,7 @@ ssh -t pve 'pct exec 208 -- docker exec -it garmin-worker sh -c "cd /app/hevy-sy
 `node sync.mjs sync` syncs and respects the 2-hour wait; with `--now` it skips
 the wait, but a workout that ended less than 2 hours ago is only merged into a
 watch recording, never uploaded, and otherwise waits for a later run. The
-dashboard's Refresh does `--now`; the 6 am run doesn't.
+dashboard's Refresh does `--now`; the scheduled runs don't.
 
 ## Setup from scratch
 
@@ -60,8 +60,9 @@ On the Mac, then moved to the server with garmin-dashboard's
    HEVY_API_KEY=your-key
    ```
 3. Sign in to Garmin once: `node sync.mjs login`. Your password goes straight
-   to Garmin (no cloud relay) and isn't saved. The renewable sign-in token is
-   saved in `data/garmin/` and lasts about a year.
+   to Garmin (no cloud relay) and isn't saved. With two-step verification on,
+   it also asks for the code Garmin emails you. The renewable sign-in token is
+   saved in `data/garmin/` and lasts about a year; syncs renew it without a code.
 4. Check: `node sync.mjs check`, then preview: `node sync.mjs preview`.
 5. Deploy with garmin-dashboard's `server/deploy.sh --data`, then delete
    `.env.local` and `data/` here.
