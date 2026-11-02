@@ -87,9 +87,14 @@ function ask(question, { hidden = false } = {}) {
 
 async function garminClient() {
   if (!existsSync(join(TOKENS_DIR))) fail("Not signed in to Garmin yet. Run: node sync.mjs login", 2);
+  const store = new FileTokenStore(TOKENS_DIR);
   try {
-    return await new GarminAuth({ store: new FileTokenStore(TOKENS_DIR) }).client();
+    return await new GarminAuth({ store }).client();
   } catch (e) {
+    // garmin-auth says "needs MFA / fresh SSO" for any failed token check, network
+    // trouble included, but deletes the tokens only when Garmin rejects them.
+    // Tokens still saved means a temporary error, which sync.sh retries.
+    if (await store.load()) fail("Garmin unreachable while checking the sign-in (temporary; the saved sign-in is kept).");
     fail(`Garmin sign-in needs renewing (${e.message}). Run: node sync.mjs login`, 2);
   }
 }
