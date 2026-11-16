@@ -81,3 +81,7 @@ On the Mac, then moved to the server with garmin-dashboard's
 
 `.env.local` (Hevy key) and `data/` (Garmin sign-in token, sync record, logs)
 are git-ignored. They live on CT 208 only.
+
+## License
+
+[MIT](LICENSE)
